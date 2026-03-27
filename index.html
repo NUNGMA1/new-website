@@ -28,21 +28,38 @@
   <section class="hero">
     <div class="container">
       <div class="today-date" id="todayDate"></div>
-      <h1>오늘의 카니보어</h1>
+      <h1>카니보어 멤버</h1>
       <p class="hero-sub" id="totalCount">불러오는 중...</p>
     </div>
   </section>
 
-  <!-- FEED -->
+  <!-- PROFILES -->
   <main class="main">
     <div class="container">
-      <div class="feed" id="feed">
-        <div class="loading">🥩 식단 불러오는 중...</div>
+      <div class="profiles" id="profiles">
+        <div class="loading">🥩 불러오는 중...</div>
       </div>
     </div>
   </main>
 
-  <!-- MODAL -->
+  <!-- 프로필 상세 모달 -->
+  <div class="profile-overlay hidden" id="profileOverlay">
+    <div class="profile-detail">
+      <button class="modal-close" id="closeProfile">✕</button>
+      <div class="profile-detail-header">
+        <div class="profile-detail-avatar" id="profileDetailAvatar"></div>
+        <div class="profile-detail-info">
+          <div class="profile-detail-name" id="profileDetailName"></div>
+          <div class="profile-detail-streak" id="profileDetailStreak"></div>
+        </div>
+      </div>
+      <div class="profile-detail-content" id="profileContent">
+        <div class="loading">🥩 불러오는 중...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 기록 모달 -->
   <div class="modal-overlay hidden" id="modalOverlay">
     <div class="modal">
       <button class="modal-close" id="closeModal">✕</button>

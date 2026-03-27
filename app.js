@@ -48,7 +48,6 @@ function formatDate(dateStr) {
 
 // 유저별 스트릭 계산
 function calculateStreaks(allMeals) {
-  // 유저별 날짜 목록
   const userDates = {};
   for (const m of allMeals) {
     if (!userDates[m.username]) userDates[m.username] = [];
@@ -93,82 +92,144 @@ function renderMealRow(label, value) {
     </div>`;
 }
 
-function renderCard(m, streak) {
-  const streakHtml = streak >= 2
-    ? `<span class="streak">🔥 ${streak}일 연속</span>`
-    : '';
-
-  const meals = [
-    renderMealRow('아침', m.breakfast),
-    renderMealRow('점심', m.lunch),
-    renderMealRow('저녁', m.dinner),
-  ].filter(Boolean).join('');
-
-  const noteHtml = m.note
-    ? `<div class="card-note">💬 ${escapeHtml(m.note)}</div>`
-    : '';
-
-  return `
-    <div class="card">
-      <div class="card-header">
-        <span class="card-username">${escapeHtml(m.username)}</span>
-        ${streakHtml}
-      </div>
-      <div class="meal-list">
-        ${meals || '<span class="meal-empty">기록 없음</span>'}
-      </div>
-      ${noteHtml}
-    </div>`;
+// 아바타 색상 (닉네임 기반 고정 색)
+function avatarColor(username) {
+  const colors = ['#c0392b', '#e67e22', '#d35400', '#27ae60', '#2980b9', '#8e44ad', '#16a085', '#f39c12'];
+  let hash = 0;
+  for (const c of username) hash = (hash * 31 + c.charCodeAt(0)) & 0xffffffff;
+  return colors[Math.abs(hash) % colors.length];
 }
 
-async function loadFeed() {
-  const feed = document.getElementById('feed');
+// 프로필 그리드 로드
+async function loadProfiles() {
+  const grid = document.getElementById('profiles');
   const countEl = document.getElementById('totalCount');
 
-  // 최근 60일치 불러오기 (스트릭 계산용)
-  const { data: allMeals, error } = await db
-    .from('meals')
-    .select('username, date, breakfast, lunch, dinner, note')
-    .gte('date', nDaysAgo(60))
-    .order('date', { ascending: false });
+  const [{ data: users, error: usersError }, { data: allMeals }] = await Promise.all([
+    db.from('users').select('username').order('username'),
+    db.from('meals').select('username, date').gte('date', nDaysAgo(60)).order('date', { ascending: false }),
+  ]);
 
-  if (error) {
-    feed.innerHTML = '<div class="loading">❌ 불러오기 실패. 잠시 후 다시 시도해주세요.</div>';
+  if (usersError || !users) {
+    grid.innerHTML = '<div class="loading">❌ 불러오기 실패. 잠시 후 다시 시도해주세요.</div>';
     return;
   }
 
-  const todayMeals = allMeals.filter(m => m.date === today());
-  countEl.textContent = todayMeals.length > 0
-    ? `${todayMeals.length}명이 오늘 식단을 기록했어요`
-    : '아직 아무도 기록하지 않았어요. 첫 번째가 되어보세요!';
+  const streaks = calculateStreaks(allMeals || []);
+  const todayStr = today();
+  const recordedToday = new Set((allMeals || []).filter(m => m.date === todayStr).map(m => m.username));
 
-  if (allMeals.length === 0) {
-    feed.innerHTML = '<div class="empty-state"><div style="font-size:3rem">🥩</div><p>아직 기록이 없어요. 첫 번째가 되어보세요!</p></div>';
+  countEl.textContent = users.length > 0
+    ? `${users.length}명의 카니보어가 함께하고 있어요`
+    : '아직 아무도 없어요. 첫 번째가 되어보세요!';
+
+  if (users.length === 0) {
+    grid.innerHTML = '<div class="empty-state"><div style="font-size:3rem">🥩</div><p>아직 아무도 없어요. 첫 번째가 되어보세요!</p></div>';
     return;
   }
 
-  const streaks = calculateStreaks(allMeals);
+  // 정렬: 오늘 기록 → 스트릭 높은 순 → 이름순
+  const sorted = [...users].sort((a, b) => {
+    const aToday = recordedToday.has(a.username) ? 1 : 0;
+    const bToday = recordedToday.has(b.username) ? 1 : 0;
+    if (aToday !== bToday) return bToday - aToday;
+    const aStreak = streaks[a.username] || 0;
+    const bStreak = streaks[b.username] || 0;
+    if (aStreak !== bStreak) return bStreak - aStreak;
+    return a.username.localeCompare(b.username, 'ko');
+  });
 
-  // 날짜별 그룹핑
-  const byDate = {};
-  for (const m of allMeals) {
-    if (!byDate[m.date]) byDate[m.date] = [];
-    byDate[m.date].push(m);
-  }
+  grid.innerHTML = sorted.map(u => {
+    const streak = streaks[u.username] || 0;
+    const isToday = recordedToday.has(u.username);
+    const color = avatarColor(u.username);
+    const initial = [...u.username][0].toUpperCase();
 
-  const sortedDates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
+    const streakHtml = streak >= 2
+      ? `<span class="profile-streak">🔥 ${streak}일 연속</span>`
+      : '';
+    const todayBadge = isToday
+      ? `<span class="profile-today">오늘 기록</span>`
+      : '';
 
-  feed.innerHTML = sortedDates.map(date => {
-    const isToday = date === today();
-    const todayTag = isToday ? '<span class="today-tag">오늘</span>' : '';
-    const cards = byDate[date].map(m => renderCard(m, streaks[m.username])).join('');
     return `
-      <div class="date-section">
-        <div class="date-label">${formatDate(date)} ${todayTag}</div>
-        <div class="date-grid">${cards}</div>
+      <div class="profile-card" data-username="${escapeHtml(u.username)}">
+        <div class="profile-avatar" style="background:${color}">${escapeHtml(initial)}</div>
+        <div class="profile-name">${escapeHtml(u.username)}</div>
+        <div class="profile-meta">${streakHtml}${todayBadge}</div>
       </div>`;
   }).join('');
 }
+
+// 프로필 상세 모달
+const profileOverlay = document.getElementById('profileOverlay');
+
+document.getElementById('profiles').addEventListener('click', e => {
+  const card = e.target.closest('.profile-card');
+  if (card) openProfileDetail(card.dataset.username);
+});
+
+async function openProfileDetail(username) {
+  profileOverlay.classList.remove('hidden');
+
+  const color = avatarColor(username);
+  const initial = [...username][0].toUpperCase();
+  const avatarEl = document.getElementById('profileDetailAvatar');
+  avatarEl.style.background = color;
+  avatarEl.textContent = initial;
+  document.getElementById('profileDetailName').textContent = username;
+  document.getElementById('profileDetailStreak').textContent = '';
+
+  const content = document.getElementById('profileContent');
+  content.innerHTML = '<div class="loading">🥩 불러오는 중...</div>';
+
+  const { data: meals } = await db
+    .from('meals')
+    .select('date, breakfast, lunch, dinner, note')
+    .eq('username', username)
+    .order('date', { ascending: false });
+
+  if (!meals || meals.length === 0) {
+    content.innerHTML = '<div class="empty-state"><p>아직 기록이 없어요.</p></div>';
+    return;
+  }
+
+  const streaks = calculateStreaks(meals.map(m => ({ ...m, username })));
+  const streak = streaks[username] || 0;
+  if (streak >= 2) {
+    document.getElementById('profileDetailStreak').textContent = `🔥 ${streak}일 연속`;
+  }
+
+  const todayStr = today();
+  content.innerHTML = meals.map(m => {
+    const isToday = m.date === todayStr;
+    const todayTag = isToday ? '<span class="today-tag">오늘</span>' : '';
+    const mealsHtml = [
+      renderMealRow('아침', m.breakfast),
+      renderMealRow('점심', m.lunch),
+      renderMealRow('저녁', m.dinner),
+    ].filter(Boolean).join('');
+    const noteHtml = m.note
+      ? `<div class="card-note">💬 ${escapeHtml(m.note)}</div>`
+      : '';
+
+    return `
+      <div class="detail-day">
+        <div class="detail-date">${formatDate(m.date)} ${todayTag}</div>
+        <div class="detail-meals">
+          ${mealsHtml || '<span class="meal-empty">기록 없음</span>'}
+        </div>
+        ${noteHtml}
+      </div>`;
+  }).join('');
+}
+
+document.getElementById('closeProfile').addEventListener('click', () => {
+  profileOverlay.classList.add('hidden');
+});
+profileOverlay.addEventListener('click', e => {
+  if (e.target === profileOverlay) profileOverlay.classList.add('hidden');
+});
 
 // 태그 입력 관리
 const tagState = { breakfast: [], lunch: [], dinner: [] };
@@ -232,7 +293,7 @@ function loadTagsFromString(meal, str) {
   });
 });
 
-// 모달
+// 기록 모달
 const overlay    = document.getElementById('modalOverlay');
 const stepLogin  = document.getElementById('stepLogin');
 const stepMeal   = document.getElementById('stepMeal');
@@ -245,7 +306,6 @@ document.getElementById('openModal').addEventListener('click', async () => {
 
   const savedUser = getSavedUser();
   if (savedUser) {
-    // 이미 로그인된 경우 바로 식단 입력으로
     await loadMealStep(savedUser);
   } else {
     stepLogin.classList.remove('hidden');
@@ -309,7 +369,6 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
     .single();
 
   if (!existing) {
-    // 새 유저 — 선착순으로 닉네임 등록
     const { error } = await db.from('users').insert({ username });
     if (error) {
       btn.disabled = false;
@@ -352,7 +411,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   }
 
   closeModal();
-  await loadFeed();
+  await loadProfiles();
   btn.disabled = false;
   btn.textContent = '저장하기';
 });
@@ -371,9 +430,9 @@ document.getElementById('btnLogout').addEventListener('click', () => {
   clearUser();
 });
 
-// 페이지 로드 시 로그인 상태 복원
+// 페이지 로드
 const savedUser = getSavedUser();
 if (savedUser) updateHeaderUser(savedUser);
 
 document.getElementById('todayDate').textContent = formatDate(today());
-loadFeed();
+loadProfiles();

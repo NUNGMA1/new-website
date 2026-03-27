@@ -127,48 +127,184 @@ body {
   font-size: 0.95rem;
 }
 
-/* MAIN FEED */
+/* MAIN */
 .main {
   padding: 36px 0 80px;
 }
 
-.feed {
+/* PROFILE GRID */
+.profiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 16px;
 }
 
-.date-section {
-  margin-bottom: 40px;
-}
-
-.date-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  color: var(--muted);
-  text-transform: uppercase;
-  margin-bottom: 14px;
+.profile-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px 16px 20px;
   display: flex;
+  flex-direction: column;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.2s;
+  text-align: center;
 }
 
-.date-label .today-tag {
-  background: var(--amber);
-  color: #000;
-  font-size: 0.68rem;
+.profile-card:hover {
+  border-color: rgba(255,255,255,0.2);
+  transform: translateY(-3px);
+}
+
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.profile-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+.profile-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  min-height: 20px;
+}
+
+.profile-streak {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.profile-today {
+  font-size: 0.72rem;
+  font-weight: 600;
+  background: rgba(39,174,96,0.2);
+  color: #2ecc71;
   padding: 2px 8px;
   border-radius: 100px;
-  letter-spacing: 0.05em;
 }
 
-.date-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+/* 프로필 상세 오버레이 */
+.profile-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.profile-overlay.hidden { display: none; }
+
+.profile-detail {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 520px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+.profile-detail-header {
+  display: flex;
+  align-items: center;
   gap: 16px;
+  padding: 28px 28px 20px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
 }
 
+.profile-detail-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.profile-detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.profile-detail-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.profile-detail-streak {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--amber);
+}
+
+.profile-detail-content {
+  overflow-y: auto;
+  padding: 20px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 일별 기록 */
+.detail-day {
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 20px;
+}
+
+.detail-day:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detail-date {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.detail-meals {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* 공통 */
 .loading {
   text-align: center;
   color: var(--muted);
@@ -179,52 +315,12 @@ body {
 .empty-state {
   text-align: center;
   color: var(--muted);
-  padding: 80px 0;
+  padding: 60px 0;
 }
 
 .empty-state p { margin-top: 12px; font-size: 0.95rem; }
 
-/* USER CARD */
-.card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 22px;
-  transition: border-color 0.2s, transform 0.2s;
-}
-
-.card:hover {
-  border-color: rgba(255,255,255,0.16);
-  transform: translateY(-2px);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-}
-
-.card-username {
-  font-size: 1rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.streak {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--amber);
-}
-
-.meal-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
+/* 카드 태그 */
 .meal-item {
   display: flex;
   gap: 10px;
@@ -239,22 +335,53 @@ body {
   font-size: 0.78rem;
 }
 
-.meal-text {
-  color: rgba(255,255,255,0.82);
-}
-
 .meal-empty {
   color: rgba(255,255,255,0.2);
   font-style: italic;
+  font-size: 0.85rem;
 }
 
-/* MODAL */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.card-tag {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.78rem;
+  padding: 2px 9px;
+  border-radius: 100px;
+}
+
+.card-note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+.today-tag {
+  background: var(--amber);
+  color: #000;
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+}
+
+/* 기록 모달 */
 .modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.75);
   backdrop-filter: blur(4px);
-  z-index: 200;
+  z-index: 300;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -300,6 +427,10 @@ body {
   font-size: 0.88rem;
   margin-bottom: 24px;
   line-height: 1.7;
+}
+
+.step-desc strong {
+  color: var(--amber);
 }
 
 .modal-step.hidden { display: none; }
@@ -384,7 +515,6 @@ body {
   font-size: 0.8rem;
 }
 
-/* 태그 pill (입력창) */
 .tag-pill {
   display: inline-flex;
   align-items: center;
@@ -411,32 +541,6 @@ body {
 }
 
 .tag-pill button:hover { opacity: 1; }
-
-/* 카드 태그 */
-.card-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-top: 2px;
-}
-
-.card-tag {
-  background: rgba(255,255,255,0.07);
-  color: rgba(255,255,255,0.75);
-  font-size: 0.78rem;
-  padding: 2px 9px;
-  border-radius: 100px;
-}
-
-.card-note {
-  margin-top: 12px;
-  padding-top: 10px;
-  border-top: 1px solid var(--border);
-  font-size: 0.82rem;
-  color: var(--muted);
-  font-style: italic;
-  line-height: 1.5;
-}
 
 .error-msg {
   color: #e74c3c;
@@ -465,7 +569,9 @@ body {
 .btn-primary:disabled { background: #555; cursor: not-allowed; }
 
 /* RESPONSIVE */
-@media (max-width: 600px) {
-  .feed { grid-template-columns: 1fr; }
+@media (max-width: 480px) {
+  .profiles { grid-template-columns: repeat(2, 1fr); }
+  .profile-detail-header { padding: 20px 20px 16px; }
+  .profile-detail-content { padding: 16px 20px 20px; }
   .modal { padding: 28px 20px; }
 }
