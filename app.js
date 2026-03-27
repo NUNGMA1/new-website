@@ -81,6 +81,10 @@ function renderCard(m, streak) {
     renderMealRow('저녁', m.dinner),
   ].filter(Boolean).join('');
 
+  const noteHtml = m.note
+    ? `<div class="card-note">💬 ${escapeHtml(m.note)}</div>`
+    : '';
+
   return `
     <div class="card">
       <div class="card-header">
@@ -90,6 +94,7 @@ function renderCard(m, streak) {
       <div class="meal-list">
         ${meals || '<span class="meal-empty">기록 없음</span>'}
       </div>
+      ${noteHtml}
     </div>`;
 }
 
@@ -100,7 +105,7 @@ async function loadFeed() {
   // 최근 60일치 불러오기 (스트릭 계산용)
   const { data: allMeals, error } = await db
     .from('meals')
-    .select('username, date, breakfast, lunch, dinner')
+    .select('username, date, breakfast, lunch, dinner, note')
     .gte('date', nDaysAgo(60))
     .order('date', { ascending: false });
 
@@ -220,6 +225,7 @@ document.getElementById('openModal').addEventListener('click', () => {
   document.getElementById('inputPassword').value = '';
   tagState.breakfast = []; tagState.lunch = []; tagState.dinner = [];
   renderTagPills('breakfast'); renderTagPills('lunch'); renderTagPills('dinner');
+  document.getElementById('inputNote').value = '';
   document.getElementById('inputUsername').focus();
 });
 
@@ -279,6 +285,7 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
   loadTagsFromString('breakfast', mealData?.breakfast || '');
   loadTagsFromString('lunch',     mealData?.lunch    || '');
   loadTagsFromString('dinner',    mealData?.dinner   || '');
+  document.getElementById('inputNote').value = mealData?.note || '';
 
   stepLogin.classList.add('hidden');
   stepMeal.classList.remove('hidden');
@@ -293,6 +300,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   const breakfast = tagState.breakfast.join(',');
   const lunch     = tagState.lunch.join(',');
   const dinner    = tagState.dinner.join(',');
+  const note      = document.getElementById('inputNote').value.trim();
   const btn       = document.getElementById('btnSave');
 
   mealError.classList.add('hidden');
@@ -303,7 +311,7 @@ document.getElementById('btnSave').addEventListener('click', async () => {
   btn.textContent = '저장 중...';
 
   const { error } = await db.from('meals').upsert(
-    { username, date: today(), breakfast, lunch, dinner },
+    { username, date: today(), breakfast, lunch, dinner, note },
     { onConflict: 'username,date' }
   );
 

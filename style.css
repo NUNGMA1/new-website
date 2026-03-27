@@ -400,6 +400,16 @@ body {
   border-radius: 100px;
 }
 
+.card-note {
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  font-size: 0.82rem;
+  color: var(--muted);
+  font-style: italic;
+  line-height: 1.5;
+}
+
 .error-msg {
   color: #e74c3c;
   font-size: 0.85rem;
