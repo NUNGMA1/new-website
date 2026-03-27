@@ -14,8 +14,8 @@
   --dark:     #1a0e0a;
   --dark2:    #2c1a12;
   --dark3:    #3d2515;
-  --tan:      #f5e6d3;
-  --tan2:     #ede0ce;
+  --tan:      #111008;
+  --tan2:     #1a1710;
   --white:    #ffffff;
   --gray:     #888;
   --text:     #1a0e0a;
@@ -32,7 +32,7 @@ html {
 body {
   font-family: 'Noto Sans KR', sans-serif;
   color: var(--text);
-  background: var(--white);
+  background: #0a0806;
   line-height: 1.7;
   overflow-x: hidden;
 }
@@ -52,6 +52,7 @@ img { max-width: 100%; display: block; }
 h1, h2, h3, h4 {
   line-height: 1.25;
   font-weight: 700;
+  color: var(--white);
 }
 
 h1 { font-size: clamp(2.4rem, 6vw, 5rem); }
@@ -80,7 +81,7 @@ em { font-style: normal; color: var(--amber); }
 
 .section-header p {
   margin-top: 16px;
-  color: var(--gray);
+  color: rgba(255,255,255,0.5);
   font-size: 1.05rem;
   max-width: 600px;
   margin-left: auto;
@@ -364,7 +365,7 @@ em { font-style: normal; color: var(--amber); }
    ABOUT
    ===================== */
 .about {
-  background: var(--tan);
+  background: #0f0c08;
 }
 
 .about-grid {
@@ -375,10 +376,11 @@ em { font-style: normal; color: var(--amber); }
 }
 
 .about-card {
-  background: var(--white);
+  background: #1a1410;
   border-radius: var(--radius);
   padding: 36px 28px;
   box-shadow: var(--shadow);
+  border: 1px solid rgba(255,255,255,0.06);
   transition: transform var(--transition), box-shadow var(--transition);
 }
 
@@ -394,21 +396,21 @@ em { font-style: normal; color: var(--amber); }
 
 .about-card h3 {
   margin-bottom: 12px;
-  color: var(--dark);
+  color: var(--white);
 }
 
 .about-card p {
-  color: #555;
+  color: rgba(255,255,255,0.6);
   font-size: 0.95rem;
   line-height: 1.7;
 }
 
 .about-note {
-  background: rgba(230,126,34,0.1);
+  background: rgba(230,126,34,0.08);
   border-left: 4px solid var(--amber);
   border-radius: 0 var(--radius) var(--radius) 0;
   padding: 18px 24px;
-  color: #5a3e1b;
+  color: rgba(255,255,255,0.7);
   font-size: 0.92rem;
 }
 
@@ -459,7 +461,7 @@ em { font-style: normal; color: var(--amber); }
    FOODS
    ===================== */
 .foods {
-  background: var(--white);
+  background: #0a0806;
 }
 
 .foods-columns {
@@ -477,12 +479,12 @@ em { font-style: normal; color: var(--amber); }
 
 .food-col.allowed {
   border-color: #27ae60;
-  background: #f0fff4;
+  background: #0a1a0f;
 }
 
 .food-col.avoided {
   border-color: #e74c3c;
-  background: #fff5f5;
+  background: #1a0a0a;
 }
 
 .food-col h3 {
@@ -493,8 +495,8 @@ em { font-style: normal; color: var(--amber); }
   gap: 10px;
 }
 
-.food-col.allowed h3 { color: #1a6635; }
-.food-col.avoided h3 { color: #8b1a1a; }
+.food-col.allowed h3 { color: #4cce7a; }
+.food-col.avoided h3 { color: #e57373; }
 
 .col-icon { font-size: 1.4rem; }
 
@@ -514,8 +516,8 @@ em { font-style: normal; color: var(--amber); }
 .food-category li {
   padding: 6px 0;
   font-size: 0.92rem;
-  border-bottom: 1px solid rgba(0,0,0,0.06);
-  color: #333;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.7);
 }
 
 .food-category li:last-child { border-bottom: none; }
@@ -525,7 +527,7 @@ em { font-style: normal; color: var(--amber); }
   border-radius: var(--radius);
   padding: 20px 24px;
   font-size: 0.92rem;
-  color: #5a3e1b;
+  color: rgba(255,255,255,0.7);
   border-left: 4px solid var(--amber);
 }
 
@@ -638,7 +640,7 @@ em { font-style: normal; color: var(--amber); }
    FAQ
    ===================== */
 .faq {
-  background: var(--tan);
+  background: #0f0c08;
 }
 
 .faq-list {
@@ -650,9 +652,10 @@ em { font-style: normal; color: var(--amber); }
 }
 
 .faq-item {
-  background: var(--white);
+  background: #1a1410;
   border-radius: var(--radius);
   overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.07);
   box-shadow: var(--shadow);
   transition: box-shadow var(--transition);
 }
@@ -668,7 +671,7 @@ em { font-style: normal; color: var(--amber); }
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: var(--dark);
+  color: var(--white);
   transition: color var(--transition), background var(--transition);
 }
 
@@ -692,10 +695,10 @@ em { font-style: normal; color: var(--amber); }
 
 .faq-item p {
   padding: 0 28px 22px;
-  color: #555;
+  color: rgba(255,255,255,0.6);
   font-size: 0.95rem;
   line-height: 1.8;
-  border-top: 1px solid var(--tan2);
+  border-top: 1px solid rgba(255,255,255,0.07);
 }
 
 /* =====================
@@ -754,14 +757,14 @@ em { font-style: normal; color: var(--amber); }
    DISCLAIMER
    ===================== */
 .disclaimer-section {
-  background: #fff3cd;
+  background: #131008;
   padding: 20px 0;
-  border-top: 1px solid #ffc107;
+  border-top: 1px solid rgba(255,193,7,0.2);
 }
 
 .disclaimer-section p {
   font-size: 0.85rem;
-  color: #856404;
+  color: rgba(255,193,7,0.7);
   line-height: 1.6;
 }
 
