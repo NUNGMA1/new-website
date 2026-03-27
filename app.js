@@ -384,6 +384,7 @@ function showMealError(msg) {
 
 document.getElementById('btnLogout').addEventListener('click', () => {
   clearUser();
+  loadFeed();
 });
 
 // 페이지 로드 시 로그인 상태 복원
