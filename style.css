@@ -47,6 +47,34 @@ body {
   justify-content: space-between;
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logged-in-user {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.btn-logout {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--muted);
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.btn-logout:hover {
+  color: var(--white);
+  border-color: rgba(255,255,255,0.3);
+}
+
 .logo {
   font-size: 1.15rem;
   font-weight: 800;

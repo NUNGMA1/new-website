@@ -1,3 +1,31 @@
+// 로그인 상태 관리
+function getSavedUser() {
+  return localStorage.getItem('carnivore_user');
+}
+
+function saveUser(username) {
+  localStorage.setItem('carnivore_user', username);
+  updateHeaderUser(username);
+}
+
+function clearUser() {
+  localStorage.removeItem('carnivore_user');
+  updateHeaderUser(null);
+}
+
+function updateHeaderUser(username) {
+  const userEl   = document.getElementById('loggedInUser');
+  const logoutEl = document.getElementById('btnLogout');
+  if (username) {
+    userEl.textContent = username;
+    userEl.classList.remove('hidden');
+    logoutEl.classList.remove('hidden');
+  } else {
+    userEl.classList.add('hidden');
+    logoutEl.classList.add('hidden');
+  }
+}
+
 const SUPABASE_URL = 'https://nliidoqiyakbnrgwlyii.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5saWlkb3FpeWFrYm5yZ3dseWlpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ2MTI1OTgsImV4cCI6MjA5MDE4ODU5OH0.eEtZSS2R1qbt8ubGUX8924QuKxYgWbMTqzgAp8w-_lk';
 
@@ -216,18 +244,50 @@ const stepMeal   = document.getElementById('stepMeal');
 const loginError = document.getElementById('loginError');
 const mealError  = document.getElementById('mealError');
 
-document.getElementById('openModal').addEventListener('click', () => {
+document.getElementById('openModal').addEventListener('click', async () => {
   overlay.classList.remove('hidden');
-  stepLogin.classList.remove('hidden');
-  stepMeal.classList.add('hidden');
   loginError.classList.add('hidden');
-  document.getElementById('inputUsername').value = '';
-  document.getElementById('inputPassword').value = '';
+
+  const savedUser = getSavedUser();
+  if (savedUser) {
+    // 이미 로그인된 경우 바로 식단 입력으로
+    await loadMealStep(savedUser);
+  } else {
+    stepLogin.classList.remove('hidden');
+    stepMeal.classList.add('hidden');
+    document.getElementById('inputUsername').value = '';
+    document.getElementById('inputPassword').value = '';
+    tagState.breakfast = []; tagState.lunch = []; tagState.dinner = [];
+    renderTagPills('breakfast'); renderTagPills('lunch'); renderTagPills('dinner');
+    document.getElementById('inputNote').value = '';
+    document.getElementById('inputUsername').focus();
+  }
+});
+
+async function loadMealStep(username) {
+  document.getElementById('greetUsername').textContent = username;
+  document.getElementById('inputUsername').value = username;
+
   tagState.breakfast = []; tagState.lunch = []; tagState.dinner = [];
   renderTagPills('breakfast'); renderTagPills('lunch'); renderTagPills('dinner');
   document.getElementById('inputNote').value = '';
-  document.getElementById('inputUsername').focus();
-});
+
+  const { data: mealData } = await db
+    .from('meals')
+    .select('breakfast, lunch, dinner, note')
+    .eq('username', username)
+    .eq('date', today())
+    .single();
+
+  loadTagsFromString('breakfast', mealData?.breakfast || '');
+  loadTagsFromString('lunch',     mealData?.lunch    || '');
+  loadTagsFromString('dinner',    mealData?.dinner   || '');
+  document.getElementById('inputNote').value = mealData?.note || '';
+
+  stepLogin.classList.add('hidden');
+  stepMeal.classList.remove('hidden');
+  mealError.classList.add('hidden');
+}
 
 document.getElementById('closeModal').addEventListener('click', closeModal);
 overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
@@ -273,23 +333,8 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
     }
   }
 
-  document.getElementById('greetUsername').textContent = username;
-
-  const { data: mealData } = await db
-    .from('meals')
-    .select('breakfast, lunch, dinner')
-    .eq('username', username)
-    .eq('date', today())
-    .single();
-
-  loadTagsFromString('breakfast', mealData?.breakfast || '');
-  loadTagsFromString('lunch',     mealData?.lunch    || '');
-  loadTagsFromString('dinner',    mealData?.dinner   || '');
-  document.getElementById('inputNote').value = mealData?.note || '';
-
-  stepLogin.classList.add('hidden');
-  stepMeal.classList.remove('hidden');
-  mealError.classList.add('hidden');
+  saveUser(username);
+  await loadMealStep(username);
 
   btn.disabled = false;
   btn.textContent = '다음 →';
@@ -336,6 +381,14 @@ function showMealError(msg) {
   mealError.textContent = msg;
   mealError.classList.remove('hidden');
 }
+
+document.getElementById('btnLogout').addEventListener('click', () => {
+  clearUser();
+});
+
+// 페이지 로드 시 로그인 상태 복원
+const savedUser = getSavedUser();
+if (savedUser) updateHeaderUser(savedUser);
 
 document.getElementById('todayDate').textContent = formatDate(today());
 loadFeed();
