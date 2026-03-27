@@ -46,11 +46,6 @@ function formatDate(dateStr) {
   return d.toLocaleDateString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' });
 }
 
-async function hashPassword(pw) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(pw));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 // 유저별 스트릭 계산
 function calculateStreaks(allMeals) {
   // 유저별 날짜 목록
@@ -256,7 +251,6 @@ document.getElementById('openModal').addEventListener('click', async () => {
     stepLogin.classList.remove('hidden');
     stepMeal.classList.add('hidden');
     document.getElementById('inputUsername').value = '';
-    document.getElementById('inputPassword').value = '';
     tagState.breakfast = []; tagState.lunch = []; tagState.dinner = [];
     renderTagPills('breakfast'); renderTagPills('lunch'); renderTagPills('dinner');
     document.getElementById('inputNote').value = '';
@@ -298,38 +292,29 @@ function closeModal() {
 
 document.getElementById('btnLogin').addEventListener('click', async () => {
   const username = document.getElementById('inputUsername').value.trim();
-  const password = document.getElementById('inputPassword').value;
   const btn = document.getElementById('btnLogin');
 
   loginError.classList.add('hidden');
 
-  if (!username) return showLoginError('아이디를 입력해주세요.');
-  if (!password) return showLoginError('비밀번호를 입력해주세요.');
-  if (username.length < 2) return showLoginError('아이디는 2자 이상이어야 해요.');
+  if (!username) return showLoginError('닉네임을 입력해주세요.');
+  if (username.length < 2) return showLoginError('닉네임은 2자 이상이어야 해요.');
 
   btn.disabled = true;
   btn.textContent = '확인 중...';
 
-  const hash = await hashPassword(password);
-
   const { data: existing } = await db
     .from('users')
-    .select('username, password_hash')
+    .select('username')
     .eq('username', username)
     .single();
 
-  if (existing) {
-    if (existing.password_hash !== hash) {
-      btn.disabled = false;
-      btn.textContent = '다음 →';
-      return showLoginError('비밀번호가 틀렸어요.');
-    }
-  } else {
-    const { error } = await db.from('users').insert({ username, password_hash: hash });
+  if (!existing) {
+    // 새 유저 — 선착순으로 닉네임 등록
+    const { error } = await db.from('users').insert({ username });
     if (error) {
       btn.disabled = false;
       btn.textContent = '다음 →';
-      return showLoginError('계정 생성 실패. 다시 시도해주세요.');
+      return showLoginError('이미 사용 중인 닉네임이에요. 다른 닉네임을 입력해주세요.');
     }
   }
 
