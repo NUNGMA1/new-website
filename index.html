@@ -64,15 +64,21 @@
         <div class="meal-inputs">
           <div class="meal-row">
             <span class="meal-label">🌅 아침</span>
-            <input type="text" id="inputBreakfast" placeholder="예: 소고기 300g" />
+            <div class="tag-input-box" id="boxBreakfast">
+              <input type="text" class="tag-input" data-meal="breakfast" placeholder="입력 후 스페이스 또는 엔터" />
+            </div>
           </div>
           <div class="meal-row">
             <span class="meal-label">☀️ 점심</span>
-            <input type="text" id="inputLunch" placeholder="예: 삼겹살 400g" />
+            <div class="tag-input-box" id="boxLunch">
+              <input type="text" class="tag-input" data-meal="lunch" placeholder="입력 후 스페이스 또는 엔터" />
+            </div>
           </div>
           <div class="meal-row">
             <span class="meal-label">🌙 저녁</span>
-            <input type="text" id="inputDinner" placeholder="예: 달걀 6개 + 버터" />
+            <div class="tag-input-box" id="boxDinner">
+              <input type="text" class="tag-input" data-meal="dinner" placeholder="입력 후 스페이스 또는 엔터" />
+            </div>
           </div>
         </div>
         <div class="error-msg hidden" id="mealError"></div>

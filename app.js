@@ -53,10 +53,33 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+function renderTags(str) {
+  if (!str) return '';
+  return str.split(',')
+    .map(t => t.trim()).filter(Boolean)
+    .map(t => `<span class="card-tag">${escapeHtml(t)}</span>`)
+    .join('');
+}
+
+function renderMealRow(label, value) {
+  if (!value) return '';
+  return `
+    <div class="meal-item">
+      <span class="meal-time">${label}</span>
+      <div class="card-tags">${renderTags(value)}</div>
+    </div>`;
+}
+
 function renderCard(m, streak) {
   const streakHtml = streak >= 2
     ? `<span class="streak">🔥 ${streak}일 연속</span>`
     : '';
+
+  const meals = [
+    renderMealRow('아침', m.breakfast),
+    renderMealRow('점심', m.lunch),
+    renderMealRow('저녁', m.dinner),
+  ].filter(Boolean).join('');
 
   return `
     <div class="card">
@@ -65,18 +88,7 @@ function renderCard(m, streak) {
         ${streakHtml}
       </div>
       <div class="meal-list">
-        <div class="meal-item">
-          <span class="meal-time">아침</span>
-          ${m.breakfast ? `<span class="meal-text">${escapeHtml(m.breakfast)}</span>` : '<span class="meal-empty">미기록</span>'}
-        </div>
-        <div class="meal-item">
-          <span class="meal-time">점심</span>
-          ${m.lunch ? `<span class="meal-text">${escapeHtml(m.lunch)}</span>` : '<span class="meal-empty">미기록</span>'}
-        </div>
-        <div class="meal-item">
-          <span class="meal-time">저녁</span>
-          ${m.dinner ? `<span class="meal-text">${escapeHtml(m.dinner)}</span>` : '<span class="meal-empty">미기록</span>'}
-        </div>
+        ${meals || '<span class="meal-empty">기록 없음</span>'}
       </div>
     </div>`;
 }
@@ -130,6 +142,68 @@ async function loadFeed() {
   }).join('');
 }
 
+// 태그 입력 관리
+const tagState = { breakfast: [], lunch: [], dinner: [] };
+
+function renderTagPills(meal) {
+  const box = document.getElementById('box' + capitalize(meal));
+  const input = box.querySelector('.tag-input');
+  box.querySelectorAll('.tag-pill').forEach(el => el.remove());
+  tagState[meal].forEach((tag, i) => {
+    const pill = document.createElement('span');
+    pill.className = 'tag-pill';
+    pill.innerHTML = `${escapeHtml(tag)}<button type="button" data-i="${i}" data-meal="${meal}">✕</button>`;
+    box.insertBefore(pill, input);
+  });
+}
+
+function addTag(meal, value) {
+  const v = value.trim().replace(/,$/, '');
+  if (!v) return;
+  tagState[meal].push(v);
+  renderTagPills(meal);
+}
+
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+
+function loadTagsFromString(meal, str) {
+  tagState[meal] = str ? str.split(',').map(t => t.trim()).filter(Boolean) : [];
+  renderTagPills(meal);
+}
+
+['breakfast', 'lunch', 'dinner'].forEach(meal => {
+  const box = document.getElementById('box' + capitalize(meal));
+  const input = box.querySelector('.tag-input');
+
+  input.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      addTag(meal, input.value);
+      input.value = '';
+    } else if (e.key === 'Backspace' && input.value === '' && tagState[meal].length > 0) {
+      tagState[meal].pop();
+      renderTagPills(meal);
+    }
+  });
+
+  input.addEventListener('blur', () => {
+    if (input.value.trim()) {
+      addTag(meal, input.value);
+      input.value = '';
+    }
+  });
+
+  box.addEventListener('click', e => {
+    if (e.target.tagName === 'BUTTON') {
+      const i = parseInt(e.target.dataset.i);
+      tagState[e.target.dataset.meal].splice(i, 1);
+      renderTagPills(e.target.dataset.meal);
+    } else {
+      input.focus();
+    }
+  });
+});
+
 // 모달
 const overlay    = document.getElementById('modalOverlay');
 const stepLogin  = document.getElementById('stepLogin');
@@ -144,6 +218,8 @@ document.getElementById('openModal').addEventListener('click', () => {
   loginError.classList.add('hidden');
   document.getElementById('inputUsername').value = '';
   document.getElementById('inputPassword').value = '';
+  tagState.breakfast = []; tagState.lunch = []; tagState.dinner = [];
+  renderTagPills('breakfast'); renderTagPills('lunch'); renderTagPills('dinner');
   document.getElementById('inputUsername').focus();
 });
 
@@ -200,9 +276,9 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
     .eq('date', today())
     .single();
 
-  document.getElementById('inputBreakfast').value = mealData?.breakfast || '';
-  document.getElementById('inputLunch').value     = mealData?.lunch    || '';
-  document.getElementById('inputDinner').value    = mealData?.dinner   || '';
+  loadTagsFromString('breakfast', mealData?.breakfast || '');
+  loadTagsFromString('lunch',     mealData?.lunch    || '');
+  loadTagsFromString('dinner',    mealData?.dinner   || '');
 
   stepLogin.classList.add('hidden');
   stepMeal.classList.remove('hidden');
@@ -214,9 +290,9 @@ document.getElementById('btnLogin').addEventListener('click', async () => {
 
 document.getElementById('btnSave').addEventListener('click', async () => {
   const username  = document.getElementById('inputUsername').value.trim();
-  const breakfast = document.getElementById('inputBreakfast').value.trim();
-  const lunch     = document.getElementById('inputLunch').value.trim();
-  const dinner    = document.getElementById('inputDinner').value.trim();
+  const breakfast = tagState.breakfast.join(',');
+  const lunch     = tagState.lunch.join(',');
+  const dinner    = tagState.dinner.join(',');
   const btn       = document.getElementById('btnSave');
 
   mealError.classList.add('hidden');

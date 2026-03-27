@@ -280,8 +280,7 @@ body {
   margin-bottom: 12px;
 }
 
-.form-group input,
-.meal-row input {
+.form-group input {
   width: 100%;
   background: rgba(255,255,255,0.06);
   border: 1px solid var(--border);
@@ -294,13 +293,11 @@ body {
   transition: border-color 0.2s;
 }
 
-.form-group input:focus,
-.meal-row input:focus {
+.form-group input:focus {
   border-color: var(--amber);
 }
 
-.form-group input::placeholder,
-.meal-row input::placeholder {
+.form-group input::placeholder {
   color: rgba(255,255,255,0.25);
 }
 
@@ -321,6 +318,86 @@ body {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--muted);
+}
+
+/* 태그 입력창 */
+.tag-input-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 12px;
+  cursor: text;
+  min-height: 44px;
+  transition: border-color 0.2s;
+}
+
+.tag-input-box:focus-within {
+  border-color: var(--amber);
+}
+
+.tag-input {
+  background: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+  min-width: 80px;
+  flex: 1;
+  font-size: 0.88rem;
+  outline: none;
+  color: var(--white);
+}
+
+.tag-input::placeholder {
+  color: rgba(255,255,255,0.2);
+  font-size: 0.8rem;
+}
+
+/* 태그 pill (입력창) */
+.tag-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(230,126,34,0.18);
+  color: #f0a055;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 100px;
+  white-space: nowrap;
+}
+
+.tag-pill button {
+  background: none;
+  border: none;
+  color: #f0a055;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s;
+}
+
+.tag-pill button:hover { opacity: 1; }
+
+/* 카드 태그 */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 2px;
+}
+
+.card-tag {
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.75);
+  font-size: 0.78rem;
+  padding: 2px 9px;
+  border-radius: 100px;
 }
 
 .error-msg {
