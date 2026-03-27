@@ -163,15 +163,14 @@ async function loadFeed() {
 
   const sortedDates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
 
-  feed.innerHTML = sortedDates.map(date => {
+  feed.innerHTML = sortedDates.flatMap(date => {
     const isToday = date === today();
     const todayTag = isToday ? '<span class="today-tag">오늘</span>' : '';
-    const cards = byDate[date].map(m => renderCard(m, streaks[m.username])).join('');
-    return `
-      <div class="date-section">
-        <div class="date-label">${formatDate(date)} ${todayTag}</div>
-        <div class="date-grid">${cards}</div>
-      </div>`;
+    const cards = byDate[date].map(m => renderCard(m, streaks[m.username]));
+    return [
+      `<div class="date-label">${formatDate(date)} ${todayTag}</div>`,
+      ...cards
+    ];
   }).join('');
 }
 
