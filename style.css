@@ -110,8 +110,38 @@ body {
   gap: 16px;
 }
 
+.date-section {
+  margin-bottom: 40px;
+}
+
+.date-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.date-label .today-tag {
+  background: var(--amber);
+  color: #000;
+  font-size: 0.68rem;
+  padding: 2px 8px;
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+}
+
+.date-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 16px;
+}
+
 .loading {
-  grid-column: 1 / -1;
   text-align: center;
   color: var(--muted);
   padding: 80px 0;
@@ -119,7 +149,6 @@ body {
 }
 
 .empty-state {
-  grid-column: 1 / -1;
   text-align: center;
   color: var(--muted);
   padding: 80px 0;
@@ -156,27 +185,11 @@ body {
   gap: 8px;
 }
 
-.card-username::before {
-  content: '';
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--green);
-  flex-shrink: 0;
-}
-
-.card-status {
-  font-size: 0.72rem;
+.streak {
+  font-size: 0.8rem;
   font-weight: 700;
-  padding: 3px 10px;
-  border-radius: 100px;
-  letter-spacing: 0.05em;
+  color: var(--amber);
 }
-
-.status-success  { background: rgba(39,174,96,0.15);  color: #4cce7a; }
-.status-progress { background: rgba(230,126,34,0.15); color: #f0a055; }
-.status-fail     { background: rgba(255,255,255,0.07); color: var(--muted); }
 
 .meal-list {
   display: flex;
